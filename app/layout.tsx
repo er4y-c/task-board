@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Jost } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
+import { QueryProvider } from '@/components/query-provider';
 
 const font = Jost({
   subsets: ['latin'],
@@ -21,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={font.className}>
-        <main>{children}</main>
-        <Toaster />
+        <QueryProvider>
+          <main>{children}</main>
+          <Toaster />
+        </QueryProvider>
       </body>
     </html>
   );
