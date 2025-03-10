@@ -1,16 +1,19 @@
+'use client';
+
 import React from 'react';
 
 import Breadcrumbs from '@/components/breadcrumbs';
-export default function Page() {
+import { useAuthStore } from '@/stores/authStore';
+
+const Dashboard = () => {
+  const { user } = useAuthStore();
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <Breadcrumbs items={[{ text: 'Dashboard', href: '#' }]} />
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-      </div>
-      <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+    <div>
+      <Breadcrumbs items={[{ text: 'Dashboard', href: '/' }]} />
+      <h1>Welcome! {user?.email || 'Guest'}</h1>
     </div>
   );
-}
+};
+
+export default Dashboard;

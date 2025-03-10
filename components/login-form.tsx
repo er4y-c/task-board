@@ -30,12 +30,16 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     mutationFn: (data: { email: string; password: string }) =>
       authServices.login(data.email, data.password),
     onSuccess: (response) => {
-      const { token } = response.data;
+      const { token, user } = response.data;
       useAuthStore.getState().setToken({ token });
+      useAuthStore.getState().setUser(user);
       Cookies.set('token', token);
+      Cookies.set('user-info', JSON.stringify(user));
       router.push('/');
     },
     onError: (error) => {
+      Cookies.remove('token');
+      Cookies.remove('user-info');
       toast.error(error.message, { duration: 5000, position: 'top-right' });
     },
   });

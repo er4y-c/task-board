@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-import { User } from '@/types/user';
+import { User } from '@supabase/supabase-js';
 
 interface AuthState {
   token: string | null;
