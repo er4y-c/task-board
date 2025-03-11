@@ -3,15 +3,15 @@
 import React from 'react';
 
 import Breadcrumbs from '@/components/breadcrumbs';
-import { useAuthStore } from '@/stores/authStore';
+import Board from '@/components/board';
 
 const Dashboard = () => {
-  const { user } = useAuthStore();
-
   return (
     <div>
       <Breadcrumbs items={[{ text: 'Dashboard', href: '/' }]} />
-      <h1>Welcome! {user?.email || 'Guest'}</h1>
+      <div>
+        <Board />
+      </div>
     </div>
   );
 };
