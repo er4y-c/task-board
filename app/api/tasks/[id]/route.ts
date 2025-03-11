@@ -4,9 +4,11 @@ import { supabase } from '@/utils/supabase';
 
 export async function PUT(req: NextRequest, context: any) {
   try {
-    const { updateData } = await req.json();
+    const updateData = await req.json();
+    if (!updateData || Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'Empty or invalid json' }, { status: 400 });
+    }
     const { params } = context;
-
     if (!params.id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
 
     const { error, data } = await supabase.from('tasks').update(updateData).eq('id', params.id);
