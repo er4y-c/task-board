@@ -10,56 +10,15 @@ interface TaskState {
   updateTask: (id: string, task: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   moveTask: (taskId: string, newStatus: TaskStatus) => void;
+  setTasks: (tasks: Task[]) => void;
 
   addUser: (user: Omit<User, 'id'>) => User;
-  getUsers: () => User[];
+  setUsers: (users: User[]) => void;
 }
 
-const defaultUsers: User[] = [
-  { id: '1', name: 'Ali Yılmaz', avatar: '/avatars/ali.png' },
-  { id: '2', name: 'Ayşe Demir', avatar: '/avatars/ayse.png' },
-  { id: '3', name: 'Mehmet Kaya', avatar: '/avatars/mehmet.png' },
-];
-
-const defaultTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Login sayfası tasarımı',
-    description: 'Kullanıcı girişi sayfasının tasarlanması',
-    status: 'TODO',
-    reporter: defaultUsers[0],
-    assignee: defaultUsers[1],
-    storyPoints: 3,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    title: 'API entegrasyonu',
-    description: 'Backend API servislerine bağlantı kurulması',
-    status: 'IN_PROGRESS',
-    reporter: defaultUsers[0],
-    assignee: defaultUsers[2],
-    storyPoints: 5,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    title: 'Dashboard kodlaması',
-    description: 'Ana dashboard ekranının kodlanması',
-    status: 'REVIEW',
-    reporter: defaultUsers[1],
-    assignee: defaultUsers[0],
-    storyPoints: 8,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
-export const useTaskStore = create<TaskState>((set, get) => ({
-  tasks: defaultTasks,
-  users: defaultUsers,
+export const useTaskStore = create<TaskState>((set) => ({
+  tasks: [],
+  users: [],
 
   addTask: (task) =>
     set((state) => ({
@@ -93,6 +52,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       ),
     })),
 
+  setTasks: (tasks) => set({ tasks }),
+
   addUser: (user) => {
     const newUser = { ...user, id: uuidv4() };
     set((state) => ({
@@ -100,6 +61,5 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     }));
     return newUser;
   },
-
-  getUsers: () => get().users,
+  setUsers: (users) => set({ users }),
 }));

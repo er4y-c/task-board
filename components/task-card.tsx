@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useTaskStore } from '@/stores/taskStore';
+import { useTasks } from '@/hooks/use-tasks';
 import { useTaskDialog } from '@/hooks/use-task-dialog';
 
 interface TaskCardProps {
@@ -21,11 +21,11 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
-  const deleteTask = useTaskStore((state) => state.deleteTask);
+  const { deleteTask } = useTasks();
   const { openDialog } = useTaskDialog();
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: task.id,
+    id: task.id!,
     data: {
       type: 'Task',
       task,
@@ -54,7 +54,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => openDialog(task)}>Düzenle</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" onClick={() => deleteTask(task.id)}>
+            <DropdownMenuItem className="text-destructive" onClick={() => deleteTask(task.id!)}>
               Sil
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -75,8 +75,8 @@ export default function TaskCard({ task }: TaskCardProps) {
 
           {task.assignee && (
             <Avatar className="h-6 w-6">
-              <AvatarImage src={task.assignee.avatar} alt={task.assignee.name} />
-              <AvatarFallback>{task.assignee.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={task.assignee.avatar} alt={task.assignee.full_name} />
+              <AvatarFallback>{task.assignee.full_name.charAt(0)}</AvatarFallback>
             </Avatar>
           )}
         </div>

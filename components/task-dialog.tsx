@@ -32,13 +32,16 @@ import { useTaskDialog } from '@/hooks/use-task-dialog';
 import { useTaskStore } from '@/stores/taskStore';
 import { TaskStatus } from '@/types/task';
 import { taskFormSchema } from '@/utils/validation';
+import { useTasks } from '@/hooks/use-tasks';
+import { Task } from '@/types/task';
 
 type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 export default function TaskDialog() {
   const { isOpen, task, initialStatus, closeDialog } = useTaskDialog();
-  const { addTask, updateTask, getUsers } = useTaskStore();
-  const users = getUsers();
+  const { users } = useTaskStore();
+
+  const { createTask, updateTask } = useTasks();
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -46,8 +49,8 @@ export default function TaskDialog() {
       title: '',
       description: '',
       status: 'TODO' as TaskStatus,
-      reporterId: users[0]?.id || '',
-      assigneeId: 'none',
+      reporter: users[0]?.full_name || '',
+      assignee: 'none',
       storyPoints: undefined,
     },
   });
@@ -58,8 +61,8 @@ export default function TaskDialog() {
         title: task.title,
         description: task.description || '',
         status: task.status,
-        reporterId: task.reporter.id,
-        assigneeId: task.assignee ? task.assignee.id : 'none',
+        reporter: task.reporter.full_name,
+        assignee: task.assignee ? task.assignee.full_name : 'none',
         storyPoints: task.storyPoints,
       });
     } else if (initialStatus) {
@@ -72,38 +75,31 @@ export default function TaskDialog() {
         title: '',
         description: '',
         status: 'TODO',
-        reporterId: users[0]?.id || '',
-        assigneeId: 'none',
+        reporter: users[0]?.full_name || '',
+        assignee: 'none',
         storyPoints: undefined,
       });
     }
   }, [task, initialStatus, form, users]);
 
-  const onSubmit = (values: TaskFormValues) => {
-    const reporter = users.find((user) => user.id === values.reporterId)!;
+  const onSubmit = async (values: TaskFormValues) => {
+    const reporter = users.find((user) => user.full_name === values.reporter)!;
     const assignee =
-      values.assigneeId === 'none'
-        ? undefined
-        : users.find((user) => user.id === values.assigneeId);
+      values.assignee === 'none' ? undefined : users.find((user) => user.id === values.assignee);
+
+    const taskData: Task = {
+      title: values.title,
+      description: values.description || '',
+      status: values.status,
+      reporter,
+      assignee,
+      storyPoints: values.storyPoints,
+    };
 
     if (task) {
-      updateTask(task.id, {
-        title: values.title,
-        description: values.description || '',
-        status: values.status,
-        reporter,
-        assignee,
-        storyPoints: values.storyPoints,
-      });
+      await updateTask({ id: task.id!, task: taskData });
     } else {
-      addTask({
-        title: values.title,
-        description: values.description || '',
-        status: values.status,
-        reporter,
-        assignee,
-        storyPoints: values.storyPoints,
-      });
+      await createTask({ task: taskData });
     }
 
     closeDialog();
@@ -189,7 +185,7 @@ export default function TaskDialog() {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="reporterId"
+                name="reporter"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Reporter</FormLabel>
@@ -201,8 +197,8 @@ export default function TaskDialog() {
                       </FormControl>
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
+                          <SelectItem key={user.id} value={user.full_name}>
+                            {user.full_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -214,7 +210,7 @@ export default function TaskDialog() {
 
               <FormField
                 control={form.control}
-                name="assigneeId"
+                name="assignee"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Assignee</FormLabel>
@@ -227,8 +223,8 @@ export default function TaskDialog() {
                       <SelectContent>
                         <SelectItem value="none">Unassigned</SelectItem>
                         {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
+                          <SelectItem key={user.id} value={user.full_name}>
+                            {user.full_name}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -9,7 +9,7 @@ export const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']),
-  reporterId: z.string().min(1, 'Reporter is required'),
-  assigneeId: z.string().optional(),
+  reporter: z.string().min(1, 'Reporter is required'),
+  assignee: z.string().optional(),
   storyPoints: z.coerce.number().int().min(0).max(100).optional(),
 });

@@ -16,9 +16,10 @@ import { columns } from '@/constants/columns';
 import { useTaskStore } from '@/stores/taskStore';
 import TaskColumn from './task-column';
 import TaskCard from './task-card';
+import { useTasks } from '@/hooks/use-tasks';
 
 export default function Board() {
-  const tasks = useTaskStore((state) => state.tasks);
+  const { tasks, updateTask } = useTasks();
   const moveTask = useTaskStore((state) => state.moveTask);
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -33,12 +34,12 @@ export default function Board() {
 
   // Her sütuna ait görevleri filtreleme
   const getTasksByColumn = (columnId: TaskStatus) => {
-    return tasks.filter((task) => task.status === columnId);
+    return tasks?.filter((task: Task) => task.status === columnId);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const activeTask = tasks.find((task) => task.id === active.id);
+    const activeTask = tasks.find((task: Task) => task.id === active.id);
     if (activeTask) {
       setActiveTask(activeTask);
     }
@@ -79,15 +80,18 @@ export default function Board() {
     const isOverATask = over.data.current?.type === 'Task';
 
     if (isActiveATask && isOverATask) {
-      const overTask = tasks.find((task) => task.id === overId);
+      const overTask = tasks.find((task: Task) => task.id === overId);
       if (overTask) {
         moveTask(activeId as string, overTask.status);
+        updateTask({ id: activeId as string, task: overTask });
       }
     }
 
     if (isActiveATask && isOverAColumn) {
       const status = over.id as TaskStatus;
+      const overTask = tasks.find((task: Task) => task.id === overId);
       moveTask(activeId as string, status);
+      updateTask({ id: activeId as string, task: overTask });
     }
   };
 
