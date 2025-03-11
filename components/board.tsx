@@ -66,33 +66,43 @@ export default function Board() {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    setActiveTask(null);
-
     const { active, over } = event;
-    if (!over) return;
+    if (!over) {
+      setActiveTask(null);
+      return;
+    }
 
     const activeId = active.id;
-    const overId = over.id;
 
-    // Görevin sütun içinde sürüklendiği durumu işleme
+    // Ensure we have the active task from state
+    if (!activeTask) {
+      setActiveTask(null);
+      return;
+    }
+
+    // Update when dragging on top of another task
     const isActiveATask = active.data.current?.type === 'Task';
-    const isOverAColumn = over.data.current?.type === 'Column';
     const isOverATask = over.data.current?.type === 'Task';
+    const isOverAColumn = over.data.current?.type === 'Column';
 
     if (isActiveATask && isOverATask) {
-      const overTask = tasks.find((task: Task) => task.id === overId);
+      const overTask = tasks.find((task: Task) => task.id === over.id);
       if (overTask) {
         moveTask(activeId as string, overTask.status);
-        updateTask({ id: activeId as string, task: overTask });
+        const updatedTask = { ...activeTask, status: overTask.status };
+        updateTask({ id: activeId as string, task: updatedTask });
       }
     }
 
+    // Update when dragging onto a column
     if (isActiveATask && isOverAColumn) {
       const status = over.id as TaskStatus;
-      const overTask = tasks.find((task: Task) => task.id === overId);
       moveTask(activeId as string, status);
-      updateTask({ id: activeId as string, task: overTask });
+      const updatedTask = { ...activeTask, status };
+      updateTask({ id: activeId as string, task: updatedTask });
     }
+
+    setActiveTask(null);
   };
 
   return (

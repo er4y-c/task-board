@@ -12,8 +12,8 @@ export interface Task {
   title: string;
   description: string;
   status: TaskStatus;
-  reporter: User;
-  assignee?: User;
+  reporter: string;
+  assignee?: string;
   storyPoints?: number;
 }
 

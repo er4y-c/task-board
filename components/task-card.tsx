@@ -6,7 +6,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { Task } from '@/types/task';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,8 +75,7 @@ export default function TaskCard({ task }: TaskCardProps) {
 
           {task.assignee && (
             <Avatar className="h-6 w-6">
-              <AvatarImage src={task.assignee.avatar} alt={task.assignee.full_name} />
-              <AvatarFallback>{task.assignee.full_name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{'UN'}</AvatarFallback>
             </Avatar>
           )}
         </div>

@@ -61,8 +61,8 @@ export default function TaskDialog() {
         title: task.title,
         description: task.description || '',
         status: task.status,
-        reporter: task.reporter.full_name,
-        assignee: task.assignee ? task.assignee.full_name : 'none',
+        reporter: task.reporter,
+        assignee: task.assignee ? task.assignee : 'none',
         storyPoints: task.storyPoints,
       });
     } else if (initialStatus) {
@@ -91,8 +91,8 @@ export default function TaskDialog() {
       title: values.title,
       description: values.description || '',
       status: values.status,
-      reporter,
-      assignee,
+      reporter: reporter.full_name,
+      assignee: assignee?.full_name,
       storyPoints: values.storyPoints,
     };
 

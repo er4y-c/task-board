@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabase';
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const body = await req.json();
-    const { id, ...updateData } = body;
+    const { updateData } = await req.json();
+    const { id } = params;
+
     if (!id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
 
     const { error, data } = await supabase.from('tasks').update(updateData).eq('id', id);
@@ -17,10 +18,9 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const body = await req.json();
-    const { id } = body;
+    const { id } = params;
     if (!id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
 
     const { error } = await supabase.from('tasks').delete().eq('id', id);
