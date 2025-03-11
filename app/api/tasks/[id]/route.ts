@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabase';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: any) {
   try {
     const { updateData } = await req.json();
-    const { id } = params;
+    const { params } = context;
 
-    if (!id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
+    if (!params.id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
 
-    const { error, data } = await supabase.from('tasks').update(updateData).eq('id', id);
+    const { error, data } = await supabase.from('tasks').update(updateData).eq('id', params.id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -18,12 +19,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: any) {
   try {
-    const { id } = params;
-    if (!id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
+    const { params } = context;
+    if (!params.id) return NextResponse.json({ error: 'Task id is required' }, { status: 400 });
 
-    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    const { error } = await supabase.from('tasks').delete().eq('id', params.id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
