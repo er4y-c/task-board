@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+
 import {
   Dialog,
   DialogContent,
@@ -30,16 +31,7 @@ import { Button } from '@/components/ui/button';
 import { useTaskDialog } from '@/hooks/use-task-dialog';
 import { useTaskStore } from '@/stores/taskStore';
 import { TaskStatus } from '@/types/task';
-
-// Form şeması
-const taskFormSchema = z.object({
-  title: z.string().min(1, 'Başlık gereklidir'),
-  description: z.string().optional(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']),
-  reporterId: z.string().min(1, 'Raporlayan kişi gereklidir'),
-  assigneeId: z.string().optional(),
-  storyPoints: z.coerce.number().int().min(0).max(100).optional(),
-});
+import { taskFormSchema } from '@/utils/validation';
 
 type TaskFormValues = z.infer<typeof taskFormSchema>;
 
@@ -55,7 +47,7 @@ export default function TaskDialog() {
       description: '',
       status: 'TODO' as TaskStatus,
       reporterId: users[0]?.id || '',
-      assigneeId: '',
+      assigneeId: 'none',
       storyPoints: undefined,
     },
   });
@@ -67,7 +59,7 @@ export default function TaskDialog() {
         description: task.description || '',
         status: task.status,
         reporterId: task.reporter.id,
-        assigneeId: task.assignee?.id || '',
+        assigneeId: task.assignee ? task.assignee.id : 'none',
         storyPoints: task.storyPoints,
       });
     } else if (initialStatus) {
@@ -81,7 +73,7 @@ export default function TaskDialog() {
         description: '',
         status: 'TODO',
         reporterId: users[0]?.id || '',
-        assigneeId: '',
+        assigneeId: 'none',
         storyPoints: undefined,
       });
     }
@@ -89,9 +81,10 @@ export default function TaskDialog() {
 
   const onSubmit = (values: TaskFormValues) => {
     const reporter = users.find((user) => user.id === values.reporterId)!;
-    const assignee = values.assigneeId
-      ? users.find((user) => user.id === values.assigneeId)
-      : undefined;
+    const assignee =
+      values.assigneeId === 'none'
+        ? undefined
+        : users.find((user) => user.id === values.assigneeId);
 
     if (task) {
       updateTask(task.id, {
@@ -130,7 +123,7 @@ export default function TaskDialog() {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Başlık</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Görev başlığı" {...field} />
                   </FormControl>
@@ -144,7 +137,7 @@ export default function TaskDialog() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Açıklama</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Görev açıklaması" {...field} value={field.value || ''} />
                   </FormControl>
@@ -159,7 +152,7 @@ export default function TaskDialog() {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Durum</FormLabel>
+                    <FormLabel>Status</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -199,7 +192,7 @@ export default function TaskDialog() {
                 name="reporterId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Raporlayan</FormLabel>
+                    <FormLabel>Reporter</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -224,7 +217,7 @@ export default function TaskDialog() {
                 name="assigneeId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Atanan Kişi</FormLabel>
+                    <FormLabel>Assignee</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -232,7 +225,7 @@ export default function TaskDialog() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Atanmadı</SelectItem>
+                        <SelectItem value="none">Unassigned</SelectItem>
                         {users.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.name}
@@ -248,9 +241,9 @@ export default function TaskDialog() {
 
             <DialogFooter className="sm:justify-end">
               <Button type="button" variant="secondary" onClick={closeDialog}>
-                İptal
+                Cancel
               </Button>
-              <Button type="submit">{task ? 'Güncelle' : 'Oluştur'}</Button>
+              <Button type="submit">{task ? 'Update' : 'Create'}</Button>
             </DialogFooter>
           </form>
         </Form>
